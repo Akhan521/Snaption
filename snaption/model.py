@@ -103,3 +103,77 @@ class ImageCaptioner(nn.Module):
 
         return vocab_proj_output 
     
+    def generate(
+        self,
+        images: torch.Tensor,
+        vocab_mapper,
+        max_length: Optional[int] = None,
+        temperature: float = 1.0,
+    ) -> torch.Tensor:
+        '''
+        Generate captions for a batch of images.
+
+        Args:
+            images (torch.Tensor): Batch of images with shape (B, 3, H, W)
+            vocab_mapper: Vocabulary mapper with special tokens
+            max_length (Optional[int]): Maximum caption length (default: context_length - 1)
+            temperature (float): Sampling temperature
+
+        Returns:
+            torch.tensor: Generated caption token IDs with shape (B, generated_length)
+        '''
+        self.eval()
+        device = images.device
+        B = images.shape[0]
+
+        if max_length is None:
+            max_length = self.context_length - 1
+
+        # For each image we'll caption, we'll start generation with a <START> token.
+        start_token = vocab_mapper['<START>']
+        end_token = vocab_mapper['<END>']
+        generated = torch.full((B, 1), fill_value = start_token, device = device, dtype = torch.long) 
+
+        # Encode images once.
+        with torch.no_grad():
+            cnn_output = self.cnn_encoder(images).view(B, -1)  # Shape: (B, 3 * H * W)
+            encoded_images = self.project(cnn_output).unsqueeze(dim = 1)  # Shape: (B, 1, model_dim)
+
+        for _ in range(max_length):
+            # Get current sequence length.
+            cur_len = generated.shape[-1]
+
+            # Get embeddings for current sequence.
+            token_embeddings = self.word_embeddings(generated)
+            positions = torch.arange(cur_len, device=device)
+            pos_embeddings = self.pos_embeddings(positions)
+            total_embeddings = token_embeddings + pos_embeddings
+
+            # Generate causal mask.
+            attn_mask = nn.Transformer.generate_square_subsequent_mask(cur_len, device=device)
+
+            # Forward pass:
+            with torch.no_grad():
+                decoder_output = self.decoder(
+                    total_embeddings,
+                    encoded_images,
+                    tgt_mask=attn_mask
+                )
+
+                vocab_proj_output = self.vocab_projection(decoder_output) # Shape: (B, cur_len, vocab_size)
+
+            # Get logits for the next token.
+            next_token_logits = vocab_proj_output[:, -1, :] / temperature  # Shape: (B, vocab_size)
+
+            # Greedy sampling: select the token with the highest probability.
+            next_token = torch.argmax(next_token_logits, dim = -1, keepdim = True) # Shape: (B, 1)
+
+            # Append the predicted token to the generated sequence.
+            generated = torch.cat([generated, next_token], dim = -1)
+
+            # If all sequences have generated the end token, we can stop early.
+            if torch.all(next_token.squeeze() == end_token):
+                break
+
+        return generated
+    
