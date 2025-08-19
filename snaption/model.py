@@ -177,3 +177,12 @@ class ImageCaptioner(nn.Module):
 
         return generated
     
+    def freeze_encoder(self):
+        """Freeze the CNN encoder parameters."""
+        for param in self.cnn_encoder.parameters():
+            param.requires_grad = False
+    
+    def unfreeze_encoder(self):
+        """Unfreeze the CNN encoder parameters."""
+        for param in self.cnn_encoder.parameters():
+            param.requires_grad = True
