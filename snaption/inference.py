@@ -33,6 +33,7 @@ class SnaptionModel:
         self.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
         self.model = None
         self.vocab_mapper = vocab_mapper
+        self.img_size = 224
         self.transform = self._create_transform()
         
         # Model configuration.
@@ -48,7 +49,12 @@ class SnaptionModel:
             self.load_model(model_path)
 
     def _create_transform(self) -> alb.Compose:
-        pass
+        '''Create the image transformation/preprocessing pipeline.'''
+        return alb.Compose([
+            alb.Resize(self.img_size, self.img_size),
+            alb.Normalize(),
+            ToTensorV2()
+        ])
 
     def load_model(self, model_path: str):
         pass
