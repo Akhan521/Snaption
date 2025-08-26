@@ -56,5 +56,34 @@ class SnaptionModel:
             ToTensorV2()
         ])
 
-    def load_model(self, model_path: str):
-        pass
+    def load_model(self, model_path: str, vocab_mapper: Optional[VocabMapper] = None):
+        '''
+        Load the pre-trained model and vocabulary mapper.
+
+        Args:
+            model_path (str): The path to the pre-trained model.
+            vocab_mapper (Optional[VocabMapper]): A vocabulary mapper for text preprocessing.
+        '''
+        if vocab_mapper:
+            self.vocab_mapper = vocab_mapper
+
+        if not self.vocab_mapper:
+            raise ValueError("A vocab_mapper must be provided (either during initialization or via the load_model method).")
+        
+        # Init. the model.
+        self.model = ImageCaptioner(
+            context_length=self.config['context_length'],
+            vocab_size=len(self.vocab_mapper),
+            num_blocks=self.config['num_blocks'],
+            model_dim=self.config['model_dim'],
+            num_heads=self.config['num_heads'],
+            dropout_prob=self.config['dropout_prob']
+        )
+
+        # Load pre-trained weights.
+        state_dict = torch.load(model_path, map_location=self.device)
+        self.model.load_state_dict(state_dict)
+        self.model.to(self.device)
+        self.model.eval()
+
+        print(f'Model loaded successfully from {model_path} on {self.device}.')
