@@ -229,3 +229,28 @@ class SnaptionModel:
             all_captions.extend(batch_captions)
 
         return all_captions
+    
+# Convenience function for quick captioning.
+def caption_image(
+    image_path: str | Path,
+    model_path: str,
+    vocab_mapper: VocabMapper,
+    **kwargs
+) -> str:
+    '''
+    A convenience function for quick captioning of a single image.
+
+    Args:
+        image_path (str | Path): The input image to caption.
+        model_path (str): The path to the model.
+        vocab_mapper (VocabMapper): The vocabulary mapper.
+        **kwargs: Additional keyword arguments to pass to the caption method.
+
+    Returns:
+        str: The generated caption.
+    '''
+    # Initialize the model.
+    model = SnaptionModel(model_path, vocab_mapper)
+
+    # Caption the image.
+    return model.caption(image_path, **kwargs)
