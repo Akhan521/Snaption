@@ -6,6 +6,7 @@ from albumentations.pytorch import ToTensorV2
 from PIL import Image
 from pathlib import Path
 from typing import List, Tuple
+import warnings
 
 from .model import ImageCaptioner
 from .utils import VocabMapper, WordTokenizer, cleanup_caption
@@ -161,3 +162,70 @@ class SnaptionModel:
             caption = cleanup_caption(caption)
             
         return caption
+    
+    def caption_batch(
+        self,
+        images: List[str | np.ndarray | Image.Image | Path],
+        max_length: int | None = None,
+        temperature: float = 1.0,
+        clean_up: bool = True
+    ) -> List[str]:
+        '''
+        Generate captions for a batch of images.
+
+        Args:
+            images (List[str | np.ndarray | Image.Image | Path]): The input images to caption.
+            max_length (int | None): The maximum length of the generated captions.
+            temperature (float): The temperature to use for sampling.
+            clean_up (bool): Whether to clean up the generated captions.
+
+        Returns:
+            List[str]: The generated captions.
+        '''
+        if not self.model:
+            raise RuntimeError("Model not loaded. Call load_model() first.")
+        
+        # Process images in batches:
+        batch_size = 4
+        all_captions = []
+
+        for i in range(0, len(images), batch_size):
+            batch_imgs = images[i:i + batch_size]
+
+            # Preprocess the batch.
+            batch_tensors = []
+            for img in batch_imgs:
+                try:
+                    tensor = self._preprocess_image(img)
+                    batch_tensors.append(tensor)
+                except Exception as e:
+                    warnings.warn(f"Failed to process image {img}: {e}")
+                    batch_tensors.append(None)
+
+            # Filter out invalid tensors.
+            batch_tensors = [t for t in batch_tensors if t is not None]
+            if not batch_tensors:
+                continue
+
+            # Stack tensors into a batch.
+            batch_tensor = torch.cat(batch_tensors, dim=0).to(self.device)
+
+            # Generate captions for the batch.
+            with torch.no_grad():
+                generated_ids = self.model.generate(
+                    batch_tensor,
+                    self.vocab_mapper,
+                    max_length=max_length,
+                    temperature=temperature
+                )
+
+            # Decode to text.
+            batch_captions = self.vocab_mapper.decode_batch(generated_ids)
+
+            # Clean up the captions (i.e. remove padding and special tokens).
+            if clean_up:
+                batch_captions = [cleanup_caption(c) for c in batch_captions]
+
+            all_captions.extend(batch_captions)
+
+        return all_captions
