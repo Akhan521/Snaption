@@ -5,7 +5,7 @@ import albumentations as alb
 from albumentations.pytorch import ToTensorV2
 from PIL import Image
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
 from .model import ImageCaptioner
 from .utils import VocabMapper, WordTokenizer, cleanup_caption
@@ -19,16 +19,16 @@ class SnaptionModel:
     def __init__(
         self,
         model_path: str,
-        vocab_mapper: Optional[VocabMapper] = None,
-        device: Optional[torch.device] = None,
+        vocab_mapper: VocabMapper | None = None,
+        device: torch.device | None = None,
     ):
         '''
         Initialize the SnaptionModel with the specified parameters.
 
         Args:
             model_path (str): The path to our pre-trained model.
-            vocab_mapper (Optional[VocabMapper]): A vocabulary mapper for text preprocessing.
-            device (Optional[torch.device]): The device to run the model on (CPU or GPU).
+            vocab_mapper (VocabMapper | None): A vocabulary mapper for text preprocessing.
+            device (torch.device | None): The device to run the model on (CPU or GPU).
         '''
         self.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
         self.model = None
@@ -56,13 +56,13 @@ class SnaptionModel:
             ToTensorV2()
         ])
 
-    def load_model(self, model_path: str, vocab_mapper: Optional[VocabMapper] = None):
+    def load_model(self, model_path: str, vocab_mapper: VocabMapper | None = None):
         '''
         Load the pre-trained model and vocabulary mapper.
 
         Args:
             model_path (str): The path to the pre-trained model.
-            vocab_mapper (Optional[VocabMapper]): A vocabulary mapper for text preprocessing.
+            vocab_mapper (VocabMapper | None): A vocabulary mapper for text preprocessing.
         '''
         if vocab_mapper:
             self.vocab_mapper = vocab_mapper
@@ -118,3 +118,46 @@ class SnaptionModel:
         transformed = self.transform(image=image)
         image = transformed['image']
         return image.unsqueeze(0) # Add batch dimension.
+    
+    def caption(
+        self,
+        image_input: str | np.ndarray | Image.Image | Path,
+        max_length: int | None = None,
+        temperature: float = 1.0,
+        clean_up: bool = True
+    ) -> str:
+        '''
+        Generate a caption for a single image.
+
+        Args:
+            image_input (str | np.ndarray | Image.Image | Path): The input image to caption.
+            max_length (int | None): The maximum length of the generated caption.
+            temperature (float): The temperature to use for sampling.
+            clean_up (bool): Whether to clean up the generated caption.
+
+        Returns:
+            str: The generated caption.
+        '''
+        if not self.model:
+            raise RuntimeError("Model not loaded. Call load_model() first.")
+
+        # Preprocess the image.
+        image_tensor = self._preprocess_image(image_input).to(self.device)
+
+        # Generate caption.
+        with torch.no_grad():
+            generated_ids = self.model.generate(
+                image_tensor,
+                self.vocab_mapper,
+                max_length=max_length,
+                temperature=temperature
+            )
+
+        # Decode to text.
+        caption = self.vocab_mapper.decode(generated_ids[0]) # Remove batch dimension.
+
+        # Clean up the caption (i.e. remove padding and special tokens).
+        if clean_up:
+            caption = cleanup_caption(caption)
+            
+        return caption
