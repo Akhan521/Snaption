@@ -87,3 +87,34 @@ class SnaptionModel:
         self.model.eval()
 
         print(f'Model loaded successfully from {model_path} on {self.device}.')
+
+    def _preprocess_image(self, image_input: str | np.ndarray | Image.Image | Path) -> torch.Tensor:
+        '''
+        Preprocess the input image for model input.
+
+        Args:
+            image_input (str | np.ndarray | Image.Image | Path): The input image to preprocess.
+
+        Returns:
+            torch.Tensor: The preprocessed image tensor.
+        '''
+        # Handle different input types:
+        if isinstance(image_input, (str, Path)):
+            image = cv2.imread(str(image_input))
+            if image is None:
+                raise ValueError(f"Could not load image from path: {image_input}")
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        elif isinstance(image_input, Image.Image):
+            image = np.array(image_input)
+            # Convert RGBA to RGB if necessary.
+            if image.shape[-1] == 4: # RGBA
+                image = image[:, :, :3] # Remove alpha channel.
+        elif isinstance(image_input, np.ndarray):
+            image = image_input.copy()
+        else:
+            raise TypeError("Unsupported image input type. Must be a file path, Numpy Array, or PIL Image.")
+
+        # Apply transformations.
+        transformed = self.transform(image=image)
+        image = transformed['image']
+        return image.unsqueeze(0) # Add batch dimension.
