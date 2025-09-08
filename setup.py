@@ -16,7 +16,19 @@ setup(
     long_description_content_type = "text/markdown",
     url = "https://github.com/Akhan521/Snaption",
     packages = find_packages(),
-    python_requires = ">=3.8",
+    classifiers = [
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.12",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+    ],
+    keywords = "image captioning, ai, deep learning, pytorch, transformers, multimodal, vision-language",
+    python_requires = ">=3.12",
     install_requires = requirements,
     entry_points = {
         "console_scripts": [
