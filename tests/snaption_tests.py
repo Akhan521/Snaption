@@ -20,6 +20,39 @@ except ImportError as e:
     print(f"\n❌ Failed to import snaption package: {e}\n")
     exit(1)
 
+
+def test_vocab_mapper():
+    '''Test vocabulary mapper functionality.'''
+    print("\nTesting vocabulary mapper...")
+
+    try:
+        sample_captions = [
+            "a dog running in the park",
+            "a cat sitting on a chair",
+            "a bird flying in the sky"
+        ]
+
+        tokenizer, vocab_mapper = snaption.build_vocab(sample_captions)
+
+        # Test encoding and decoding.
+        test_caption = "a dog sitting"
+        tokens = tokenizer(test_caption)
+        encoded = vocab_mapper(tokens)
+        decoded = vocab_mapper.decode(encoded)
+
+        print("✅ Vocabulary mapper created successfully!")
+        print(f"   - Original caption: {test_caption}")
+        print(f"   - Tokens: {tokens}")
+        print(f"   - Encoded: {encoded}")
+        print(f"   - Decoded: {decoded}")
+        print(f"   - Vocab size: {len(vocab_mapper)} tokens")
+        print(f"   - Special tokens: {vocab_mapper.get_special_tokens()}")
+        return True
+    except Exception as e:
+        print(f"❌ Vocabulary mapper test failed: {e}")
+        return False
+
+
 def test_model_creation():
     '''
     Test creating a model without loading weights.
@@ -47,6 +80,7 @@ def test_model_creation():
         print(f"❌ Failed to create model: {e}")
         return False
 
+
 def run_all_tests():
     '''Run all tests for the snaption package.'''
     print("Running all tests for the snaption package...")
@@ -54,6 +88,7 @@ def run_all_tests():
 
     # Our tests:
     tests = [
+        ("Vocabulary Mapper", test_vocab_mapper),
         ("Model Creation", test_model_creation),
     ]
 
