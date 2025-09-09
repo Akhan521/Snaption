@@ -53,11 +53,12 @@ def test_vocab_mapper():
         return False
 
 
-def test_model_creation():
+def test_model_creation(show_header: bool = True):
     '''
     Test creating a model without loading weights.
     '''
-    print("\nTesting model creation...")
+    if show_header:
+        print("\nTesting model creation...")
 
     # Create a dummy vocabulary mapper.
     dummy_text = ['hello world test']
@@ -75,10 +76,10 @@ def test_model_creation():
         print("✅ Model created successfully!")
         print(f"   - Vocab size: {len(vocab_mapper)} tokens")
         print(f"   - Model parameters: {sum(p.numel() for p in model.parameters())}")
-        return True
+        return model, vocab_mapper
     except Exception as e:
         print(f"❌ Failed to create model: {e}")
-        return False
+        return None, None
     
 
 def test_image_preprocessing():
@@ -96,15 +97,45 @@ def test_image_preprocessing():
         processed = snaption_model._preprocess_image(dummy_image)
 
         print("✅ Image preprocessing successful!")
-        print(f"    - Input shape: {dummy_image.shape}")
-        print(f"    - Output shape: {processed.shape}")
-        print(f"    - Output dtype: {processed.dtype}")
-        print(f"    - Value range: [{processed.min():.3f}, {processed.max():.3f}]")
+        print(f"   - Input shape: {dummy_image.shape}")
+        print(f"   - Output shape: {processed.shape}")
+        print(f"   - Output dtype: {processed.dtype}")
+        print(f"   - Value range: [{processed.min():.3f}, {processed.max():.3f}]")
         return True
     except Exception as e:
         print(f"❌ Image preprocessing test failed: {e}")
         return False
 
+
+def test_model_forward_pass():
+    '''Test a forward pass through the model with dummy data.'''
+    print("\nTesting model forward pass...")
+
+    # Get a test model and vocab mapper.
+    model, vocab_mapper = test_model_creation(show_header = False)
+    if model is None:
+        return False
+    
+    try:
+        # Create a dummy batch.
+        batch_size = 2
+        dummy_images = torch.randn(batch_size, 3, 224, 224)
+        dummy_captions = torch.randint(low=0, high=len(vocab_mapper), size=(batch_size, 10))
+
+        # Forward pass.
+        model.eval()
+        with torch.no_grad():
+            outputs = model(dummy_images, dummy_captions)
+
+        print("✅ Model forward pass successful!")
+        print(f"   - Input images shape: {dummy_images.shape}")
+        print(f"   - Input captions shape: {dummy_captions.shape}")
+        print(f"   - Output logits shape: {outputs.shape}")
+        print(f"   - Expected output shape: ({batch_size}, 10, {len(vocab_mapper)})")
+        return True
+    except Exception as e:
+        print(f"❌ Model forward pass test failed: {e}")
+        return False
 
 def run_all_tests():
     '''Run all tests for the snaption package.'''
@@ -115,7 +146,8 @@ def run_all_tests():
     tests = [
         ("Vocabulary Mapper", test_vocab_mapper),
         ("Model Creation", test_model_creation),
-        ("Image Preprocessing", test_image_preprocessing)
+        ("Image Preprocessing", test_image_preprocessing),
+        ("Model Forward Pass", test_model_forward_pass)
     ]
 
     results = []
