@@ -19,7 +19,7 @@ class SnaptionModel:
     '''
     def __init__(
         self,
-        model_path: str,
+        model_path: str | None = None,
         vocab_mapper: VocabMapper | None = None,
         device: torch.device | None = None,
     ):

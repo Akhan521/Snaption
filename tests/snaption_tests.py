@@ -79,6 +79,31 @@ def test_model_creation():
     except Exception as e:
         print(f"❌ Failed to create model: {e}")
         return False
+    
+
+def test_image_preprocessing():
+    '''Test image preprocessing pipeline.'''
+    print("\nTesting image preprocessing...")
+
+    try:
+        # Create a dummy SnaptionModel (without loading weights).
+        snaption_model = snaption.SnaptionModel()
+
+        # Test with a dummy image.
+        dummy_image = np.random.randint(low=0, high=255, size=(224, 224, 3), dtype=np.uint8)
+
+        # Test preprocessing.
+        processed = snaption_model._preprocess_image(dummy_image)
+
+        print("✅ Image preprocessing successful!")
+        print(f"    - Input shape: {dummy_image.shape}")
+        print(f"    - Output shape: {processed.shape}")
+        print(f"    - Output dtype: {processed.dtype}")
+        print(f"    - Value range: [{processed.min():.3f}, {processed.max():.3f}]")
+        return True
+    except Exception as e:
+        print(f"❌ Image preprocessing test failed: {e}")
+        return False
 
 
 def run_all_tests():
@@ -90,6 +115,7 @@ def run_all_tests():
     tests = [
         ("Vocabulary Mapper", test_vocab_mapper),
         ("Model Creation", test_model_creation),
+        ("Image Preprocessing", test_image_preprocessing)
     ]
 
     results = []
