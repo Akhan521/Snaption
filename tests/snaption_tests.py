@@ -137,6 +137,35 @@ def test_model_forward_pass():
         print(f"❌ Model forward pass test failed: {e}")
         return False
 
+
+def test_generation():
+    '''Test caption generation (without trained weights).'''
+    print("\nTesting caption generation...")
+
+    # Get a test model and vocab mapper.
+    model, vocab_mapper = test_model_creation(show_header = False)
+    if model is None:
+        return False
+    
+    try:
+        # Create a dummy image.
+        dummy_image = torch.randn(1, 3, 224, 224)
+
+        # Generate caption (will be random without trained weights).
+        model.eval()
+        generated = model.generate(dummy_image, vocab_mapper, max_length = 10)
+        caption = vocab_mapper.decode(generated[0])
+
+        print("✅ Caption generation successful!")
+        print(f"   - Generated tokens: {generated[0].tolist()}")
+        print(f"   - Generated caption: {caption}")
+        print("    - Note: Caption is random since model isn't trained.")
+        return True
+    except Exception as e:
+        print(f"❌ Caption generation test failed: {e}")
+        return False
+
+
 def run_all_tests():
     '''Run all tests for the snaption package.'''
     print("Running all tests for the snaption package...")
@@ -147,7 +176,8 @@ def run_all_tests():
         ("Vocabulary Mapper", test_vocab_mapper),
         ("Model Creation", test_model_creation),
         ("Image Preprocessing", test_image_preprocessing),
-        ("Model Forward Pass", test_model_forward_pass)
+        ("Model Forward Pass", test_model_forward_pass),
+        ("Caption Generation", test_generation)
     ]
 
     results = []
@@ -172,9 +202,9 @@ def run_all_tests():
     print(f"\nOverall: {passed}/{total} tests passed.")
 
     if passed == total:
-        print("🎉 All tests passed successfully! Your package is ready for use.\n")
+        print("\n🎉 All tests passed successfully! Your package is ready for use.\n")
     else:
-        print("⚠️ Some tests failed. Please check the details above.\n")
+        print("\n⚠️ Some tests failed. Please check the details above.\n")
 
 if __name__ == "__main__":
     run_all_tests()
