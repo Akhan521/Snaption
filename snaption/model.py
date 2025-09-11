@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import timm
-from typing import Tuple, Optional
+from typing import Tuple
 
 class ImageCaptioner(nn.Module):
     '''
@@ -107,7 +107,7 @@ class ImageCaptioner(nn.Module):
         self,
         images: torch.Tensor,
         vocab_mapper,
-        max_length: Optional[int] = None,
+        max_length: int | None = None,
         temperature: float = 1.0,
     ) -> torch.Tensor:
         '''
@@ -116,7 +116,7 @@ class ImageCaptioner(nn.Module):
         Args:
             images (torch.Tensor): Batch of images with shape (B, 3, H, W)
             vocab_mapper: Vocabulary mapper with special tokens
-            max_length (Optional[int]): Maximum caption length (default: context_length - 1)
+            max_length (int | None): Maximum caption length (default: context_length - 1)
             temperature (float): Sampling temperature
 
         Returns:
