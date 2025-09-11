@@ -144,9 +144,10 @@ class ImageCaptioner(nn.Module):
             cur_len = generated.shape[-1]
 
             # Get embeddings for current sequence.
-            token_embeddings = self.word_embeddings(generated)
-            positions = torch.arange(cur_len, device=device)
-            pos_embeddings = self.pos_embeddings(positions)
+            token_embeddings = self.word_embeddings(generated) # Shape: (B, cur_len, model_dim)
+            positions = torch.arange(cur_len, device=device)   # Shape: (cur_len,)
+            pos_embeddings = self.pos_embeddings(positions)    # Shape: (cur_len, model_dim)
+            pos_embeddings = pos_embeddings.unsqueeze(0).expand(B, -1, -1) # Shape: (B, cur_len, model_dim)
             total_embeddings = token_embeddings + pos_embeddings
 
             # Generate causal mask.
@@ -164,9 +165,13 @@ class ImageCaptioner(nn.Module):
 
             # Get logits for the next token.
             next_token_logits = vocab_proj_output[:, -1, :] / temperature  # Shape: (B, vocab_size)
+            
+            # # Greedy sampling: select the token with the highest probability.
+            # next_token = torch.argmax(next_token_logits, dim = -1, keepdim = True) # Shape: (B, 1)
 
-            # Greedy sampling: select the token with the highest probability.
-            next_token = torch.argmax(next_token_logits, dim = -1, keepdim = True) # Shape: (B, 1)
+            # Multinomial sampling: select the next token by sampling from the probability distribution.
+            probs = torch.softmax(next_token_logits, dim = -1)
+            next_token = torch.multinomial(probs, num_samples = 1) # Shape: (B, 1)
 
             # Append the predicted token to the generated sequence.
             generated = torch.cat([generated, next_token], dim = -1)
