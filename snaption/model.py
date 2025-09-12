@@ -109,6 +109,7 @@ class ImageCaptioner(nn.Module):
         vocab_mapper,
         max_length: int | None = None,
         temperature: float = 1.0,
+        top_k: int | None = 50
     ) -> torch.Tensor:
         '''
         Generate captions for a batch of images.
@@ -118,6 +119,7 @@ class ImageCaptioner(nn.Module):
             vocab_mapper: Vocabulary mapper with special tokens
             max_length (int | None): Maximum caption length (default: context_length - 1)
             temperature (float): Sampling temperature
+            top_k (int | None): Top-k filtering for sampling (only consider top_k tokens)
 
         Returns:
             torch.tensor: Generated caption token IDs with shape (B, generated_length)
@@ -134,40 +136,27 @@ class ImageCaptioner(nn.Module):
         end_token = vocab_mapper['<END>']
         generated = torch.full((B, 1), fill_value = start_token, device = device, dtype = torch.long) 
 
-        # Encode images once.
-        with torch.no_grad():
-            cnn_output = self.cnn_encoder(images).view(B, -1)  # Shape: (B, 3 * H * W)
-            encoded_images = self.project(cnn_output).unsqueeze(dim = 1)  # Shape: (B, 1, model_dim)
-
         for _ in range(max_length):
-            # Get current sequence length.
-            cur_len = generated.shape[-1]
-
-            # Get embeddings for current sequence.
-            token_embeddings = self.word_embeddings(generated) # Shape: (B, cur_len, model_dim)
-            positions = torch.arange(cur_len, device=device)   # Shape: (cur_len,)
-            pos_embeddings = self.pos_embeddings(positions)    # Shape: (cur_len, model_dim)
-            pos_embeddings = pos_embeddings.unsqueeze(0).expand(B, -1, -1) # Shape: (B, cur_len, model_dim)
-            total_embeddings = token_embeddings + pos_embeddings
-
-            # Generate causal mask.
-            attn_mask = nn.Transformer.generate_square_subsequent_mask(cur_len, device=device)
-
-            # Forward pass:
-            with torch.no_grad():
-                decoder_output = self.decoder(
-                    total_embeddings,
-                    encoded_images,
-                    tgt_mask=attn_mask
-                )
-
-                vocab_proj_output = self.vocab_projection(decoder_output) # Shape: (B, cur_len, vocab_size)
+            # Forward pass through the model to get logits for the next token.
+            vocab_proj_output = self.forward(images, generated) # Shape: (B, cur_len, vocab_size)
 
             # Get logits for the next token.
             next_token_logits = vocab_proj_output[:, -1, :] / temperature  # Shape: (B, vocab_size)
             
             # # Greedy sampling: select the token with the highest probability.
             # next_token = torch.argmax(next_token_logits, dim = -1, keepdim = True) # Shape: (B, 1)
+
+            # Apply top-k filtering if specified.
+            if top_k is not None and top_k > 0:
+                top_k = min(top_k, next_token_logits.size(-1)) # next_token_logits.size(-1) = vocab_size
+                values, _ = torch.topk(next_token_logits, top_k) # Shape: (B, top_k)
+                threshold = values[:, -1].unsqueeze(-1)  # The threshold is the smallest value in the top-k set. Shape: (B, 1)
+                # Mask out everything below the threshold. This ensures we only sample from the top-k tokens.
+                next_token_logits = torch.where(
+                    next_token_logits < threshold,
+                    input=torch.full_like(next_token_logits, float("-inf")), # If we're below the threshold, set the logit to -inf.
+                    other=next_token_logits, # Otherwise, keep the original logit.
+                )
 
             # Multinomial sampling: select the next token by sampling from the probability distribution.
             probs = torch.softmax(next_token_logits, dim = -1)
