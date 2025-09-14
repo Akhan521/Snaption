@@ -164,8 +164,36 @@ def test_generation():
     except Exception as e:
         print(f"❌ Caption generation test failed: {e}")
         return False
+    
+def test_weight_loading():
+    '''Test loading model weights from a file.'''
+    print("\nTesting model weight loading...")
 
+    path = 'path/to/weights.pt' # Update w/ actual path to weights file.
+    
+    from snaption.utils import VocabMapper
+    import pickle
+    # Load the vocab mapper.
+    with open("vocab/vocab_mapper.pkl", "rb") as f:
+        vocab_mapper: VocabMapper = pickle.load(f)  
+        
+    try:
+        model = snaption.SnaptionModel(
+            model_path = path,
+            vocab_mapper = vocab_mapper,
+        )
+        print("✅ Model weights loaded successfully!")
+        
+        # Test w/ a sample image.
+        sample_image = 'samples/image_1.jpg'  
+        caption = model.caption(sample_image)
+        print(f"Caption Generated: '{caption}'")
+        return True
+    except Exception as e:
+        print(f"❌ Model weight loading test failed: {e}")
+        return False
 
+            
 def run_all_tests():
     '''Run all tests for the snaption package.'''
     print("Running all tests for the snaption package...")
@@ -177,7 +205,8 @@ def run_all_tests():
         ("Model Creation", test_model_creation),
         ("Image Preprocessing", test_image_preprocessing),
         ("Model Forward Pass", test_model_forward_pass),
-        ("Caption Generation", test_generation)
+        ("Caption Generation", test_generation),
+        # ("Model Weight Loading", test_weight_loading)
     ]
 
     results = []
@@ -204,7 +233,7 @@ def run_all_tests():
     if passed == total:
         print("\n🎉 All tests passed successfully! Your package is ready for use.\n")
     else:
-        print("\n⚠️ Some tests failed. Please check the details above.\n")
+        print("\nSome tests failed... Please check the details above.\n")
 
 if __name__ == "__main__":
     run_all_tests()
