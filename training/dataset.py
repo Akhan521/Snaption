@@ -233,3 +233,33 @@ def load_flickr8k_dataset(
     print(f"Loaded {len(df)} images with {len(all_captions)} total captions.")
     print(f"Average captions per image: {len(all_captions) / len(df):.1f}")
     return df, all_captions
+
+def create_train_val_split(
+        df: pd.DataFrame,
+        val_split: float = 0.1,
+        random_seed: int = 42
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    '''
+    Split the dataset into training and validation sets.
+    
+    Args:
+        df (pd.DataFrame): DataFrame containing image filenames and captions.
+        val_split (float): Proportion of data to use for validation.
+        random_seed (int): Random seed for reproducibility.
+        
+    Returns:
+        Tuple[pd.DataFrame, pd.DataFrame]: Training and validation DataFrames.
+    '''
+    if not (0.0 < val_split < 1.0):
+        raise ValueError("val_split must be between 0 and 1.")
+    
+    # Shuffle the DataFrame.
+    df_shuffled = df.sample(frac = 1.0, random_state = random_seed).reset_index(drop = True)
+    val_size = int(len(df_shuffled) * val_split)
+
+    # Split the DataFrame.
+    val_df = df_shuffled[:val_size].copy()
+    train_df = df_shuffled[val_size:].copy()
+
+    print(f"Dataset split: {len(train_df)} training samples, {len(val_df)} validation samples.")
+    return train_df, val_df
