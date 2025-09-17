@@ -165,17 +165,71 @@ class ImageCaptioningDataset(Dataset):
 
             encoded_captions.append(torch.tensor(token_indices, dtype = torch.long))
 
-            # Randomly select one caption from the available captions.
-            if encoded_captions:
-                caption_idx = torch.randint(len(encoded_captions), size = (1,)).item()
-                selected_caption = encoded_captions[caption_idx]
-            else:
-                # As a fallback, we'll return a placeholder caption.
-                selected_caption = torch.tensor([
-                    self.vocab_mapper['<START>'],
-                    self.vocab_mapper['<UNKNOWN>'],
-                    self.vocab_mapper['<END>']] + 
-                    [self.vocab_mapper['<PAD>']] * (self.context_length - 3), 
-                dtype=torch.long)
+        # Randomly select one caption from the available captions.
+        if encoded_captions:
+            caption_idx = torch.randint(len(encoded_captions), size = (1,)).item()
+            selected_caption = encoded_captions[caption_idx]
+        else:
+            # As a fallback, we'll return a placeholder caption tensor.
+            selected_caption = torch.tensor([
+                self.vocab_mapper['<START>'],
+                self.vocab_mapper['<UNKNOWN>'],
+                self.vocab_mapper['<END>']] + 
+                [self.vocab_mapper['<PAD>']] * (self.context_length - 3), 
+            dtype=torch.long)
 
         return transformed_img, selected_caption
+    
+def load_flickr8k_dataset(
+        captions_file: str | Path,
+        images_dir: str | Path,
+        missing_imgs: List[str] | None = None
+) -> Tuple[pd.DataFrame, List[str]]:
+    '''
+    Load the Flickr8k dataset from the captions file and images directory.
+    
+    Args:
+        captions_file (str | Path): Path to the captions text file.
+        images_dir (str | Path): Directory where images are stored.
+        missing_imgs (List[str] | None): List of known missing image filenames.
+        
+    Returns:
+        Tuple[pd.DataFrame, List[str]]: DataFrame with image filenames and captions, 
+                                        and list of all captions.
+    '''
+    captions_file = Path(captions_file)
+    images_dir = Path(images_dir)
+
+    if not captions_file.exists():
+        raise FileNotFoundError(f"Captions file {captions_file} not found.")
+    
+    if missing_imgs is None:
+        missing_imgs = ['2258277193_586949ec62.jpg'] # Known missing image in Flickr8k dataset.
+
+    with open(captions_file, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+
+    get_captions = {} # image filename -> list of captions
+    all_captions = [] # List of all captions
+
+    for line in lines:
+        parts = line.rstrip('\n').split('.jpg,')
+        img_filename = parts[0] + '.jpg'
+        caption = parts[1].strip()
+
+        if img_filename in missing_imgs:
+            continue
+
+        if img_filename not in get_captions:
+            get_captions[img_filename] = []
+
+        get_captions[img_filename].append(caption)
+        all_captions.append(caption)
+
+    df = pd.DataFrame(columns = ['image_filename', 'captions'])
+    df['image_filename'] = get_captions.keys()
+    df['captions'] = df['image_filename'].map(lambda img: get_captions[img])
+
+    print(f"Loaded {len(df)} images with {len(all_captions)} total captions.")
+    print(f"Average captions per image: {len(all_captions) / len(df):.1f}")
+    return df, all_captions
