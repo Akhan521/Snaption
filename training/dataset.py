@@ -51,11 +51,11 @@ class ImageCaptioningDataset(Dataset):
         self.vocab_mapper = vocab_mapper
         self.context_length = context_length
 
-        # Validate dataset components.
-        self._validate_dataset()
-
         # Create the augmentation pipeline.
         self.transform = self._create_transform()
+
+        # Validate dataset components.
+        self._validate_dataset()
 
     def _create_transform(self) -> alb.Compose:
         '''
