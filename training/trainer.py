@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Dict, Tuple, List
 import time
 import json
+from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 import snaption
@@ -50,8 +51,8 @@ class SnaptionTrainer:
         self.best_val_loss = float('inf')
 
         # History tracking:
-        self.train_loss_history: List[float] = []
-        self.val_loss_history: List[float] = []
+        self.train_losses: List[float] = []
+        self.val_losses: List[float] = []
         self.learning_rates: List[float] = []
 
         print(f"Trainer initialized on device: {self.device}")
@@ -124,3 +125,102 @@ class SnaptionTrainer:
         print(f"   - Max Epochs: {max_epochs}")
         print(f"   - Label Smoothing: {label_smoothing}")
         print(f"   - Scheduler: {'OneCycleLR' if use_scheduler else 'None'}")
+
+    def train_epoch(self) -> float:
+        '''Train the model for one epoch.'''
+        self.model.train()
+        total_loss = 0.0
+        num_batches = len(self.train_loader)
+
+        progress_bar = tqdm(
+            self.train_loader,
+            desc = f"Epoch {self.current_epoch + 1}/{self.max_epochs}",
+            leave = False
+        )
+
+        for batch_idx, (images, captions) in enumerate(progress_bar):
+            images = images.to(self.device)
+            captions = captions.to(self.device)
+
+            # Prepare autoregressive inputs and targets.
+            inputs = captions[:, :-1] # All tokens except the last.
+            targets = captions[:, 1:] # All tokens except the first.
+
+            # Forward pass.
+            outputs = self.model(images, inputs)
+
+            # Compute loss.
+            B, T, V = outputs.shape
+            loss = self.criterion(
+                outputs.reshape(B * T, V),
+                targets.reshape(B * T)
+            )
+
+            # Backward pass.
+            self.optimizer.zero_grad()
+            loss.backward()
+
+            # Gradient clipping.
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=2.0)
+
+            # Optimizer step and scheduler step (if applicable).
+            self.optimizer.step()
+            if self.scheduler:
+                self.scheduler.step()
+                current_lr = self.scheduler.get_last_lr()[0]
+                self.learning_rates.append(current_lr)
+
+            # Update metrics.
+            total_loss += loss.item()
+            self.global_step += 1
+
+            # Update progress bar.
+            if batch_idx % 10 == 0 or batch_idx == num_batches - 1:
+                avg_loss = total_loss / (batch_idx + 1)
+                progress_bar.set_postfix({
+                    'loss': f'{loss.item():.4f}',
+                    'avg_loss': f'{avg_loss:.4f}',
+                    'lr': f'{current_lr:.6f}' if self.scheduler else f'{self.optimizer.param_groups[0]["lr"]:.6f}'
+                })
+
+        avg_epoch_loss = total_loss / num_batches
+        self.train_losses.append(avg_epoch_loss)
+        self.current_epoch += 1
+
+        return avg_epoch_loss
+    
+    def validate(self) -> float:
+        '''Validate the model on the validation dataset.'''
+        if self.val_loader is None:
+            return float('inf')
+        
+        self.model.eval()
+        total_loss = 0.0
+        num_batches = len(self.val_loader)
+
+        with torch.no_grad():
+            for images, captions in tqdm(self.val_loader, desc="Validating", leave=False):
+                images = images.to(self.device)
+                captions = captions.to(self.device)
+
+                # Prepare autoregressive inputs and targets.
+                inputs = captions[:, :-1] # All tokens except the last.
+                targets = captions[:, 1:] # All tokens except the first.
+
+                # Forward pass.
+                outputs = self.model(images, inputs)
+
+                # Compute loss.
+                B, T, V = outputs.shape
+                loss = self.criterion(
+                    outputs.reshape(B * T, V),
+                    targets.reshape(B * T)
+                )
+
+                total_loss += loss.item()
+
+        avg_val_loss = total_loss / num_batches
+        self.val_losses.append(avg_val_loss)
+
+        return avg_val_loss
+
