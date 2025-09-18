@@ -185,7 +185,6 @@ class SnaptionTrainer:
 
         avg_epoch_loss = total_loss / num_batches
         self.train_losses.append(avg_epoch_loss)
-        self.current_epoch += 1
 
         return avg_epoch_loss
     
@@ -223,4 +222,64 @@ class SnaptionTrainer:
         self.val_losses.append(avg_val_loss)
 
         return avg_val_loss
+    
+    def train(
+        self, 
+        epochs: int | None = None,
+        save_dir: str = './checkpoints',
+        save_every: int = 50,
+        validate_every: int = 1,
+    ):
+        '''
+        Train the model for a specified number of epochs, with periodic validation and checkpointing.
 
+        Args:
+            epochs (int | None): Number of epochs to train. If None, uses the max_epochs set in setup_training. Defaults to None.
+            save_dir (str): Directory to save model checkpoints. Defaults to './checkpoints'.
+            save_every (int): Save a checkpoint every 'save_every' epochs. Defaults to 50.
+            validate_every (int): Validate the model every 'validate_every' epochs. Defaults to 1.
+        '''
+        if epochs is None:
+            epochs = self.max_epochs
+
+        save_path = Path(save_dir)
+        save_path.mkdir(exist_ok = True)
+
+        print(f"Starting training for {epochs} epochs...")
+        print(f"Checkpoints will be saved to: {save_dir}")
+        
+        start_time = time.time()
+
+        for epoch in range(epochs):
+            self.current_epoch = epoch
+
+            # Train for one epoch.
+            train_loss = self.train_epoch()
+
+            # Validate if required.
+            if self.val_loader and epoch % validate_every == 0:
+                val_loss = self.validate()
+                print(f"Epoch {epoch + 1}/{epochs} - Train Loss: {train_loss:.4f} - Val Loss: {val_loss:.4f}")
+
+                # Save the best model based on validation loss.
+                if val_loss < self.best_val_loss:
+                    self.best_val_loss = val_loss
+                    self.save_checkpoint(save_path / 'best_model.pt')
+            else:
+                print(f"Epoch {epoch + 1}/{epochs} - Train Loss: {train_loss:.4f}")
+
+            # Save checkpoints periodically.
+            if epoch % save_every == 0:
+                self.save_checkpoint(save_path / f'checkpoint_epoch_{epoch + 1}.pt')
+
+        # Final save after training.
+        self.save_checkpoint(save_path / 'final_model.pt')
+
+        # Training summary:
+        total_time = time.time() - start_time
+        print(f"\nTraining completed in {total_time/3600:.2f} hours.")
+        print(f"Best Validation Loss: {self.best_val_loss:.4f}")
+
+        # Save training history.
+        self.save_training_history(save_path / 'training_history.json')
+        self.plot_training_curves(save_path / 'training_curves.png')
