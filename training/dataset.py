@@ -61,7 +61,7 @@ class ImageCaptioningDataset(Dataset):
         '''
         Create the image transformation pipeline based on the dataset split.
         '''
-        transforms = [alb.Resize(self.img_size, self.img_size)]
+        transforms: list = [alb.Resize(self.img_size, self.img_size)]
 
         if self.split == 'train':
             transforms.extend([
@@ -149,6 +149,9 @@ class ImageCaptioningDataset(Dataset):
 
         # Process captions:
         encoded_captions = []
+        if self.tokenizer is None or self.vocab_mapper is None:
+            raise ValueError("Tokenizer and vocab_mapper must be provided.")
+        
         for i, caption in enumerate(captions):
             tokens = self.tokenizer(caption)
             token_indices = self.vocab_mapper(tokens)
@@ -167,7 +170,7 @@ class ImageCaptioningDataset(Dataset):
 
         # Randomly select one caption from the available captions.
         if encoded_captions:
-            caption_idx = torch.randint(len(encoded_captions), size = (1,)).item()
+            caption_idx = int(torch.randint(len(encoded_captions), size = (1,)).item())
             selected_caption = encoded_captions[caption_idx]
         else:
             # As a fallback, we'll return a placeholder caption tensor.
