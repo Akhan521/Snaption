@@ -283,3 +283,48 @@ class SnaptionTrainer:
         # Save training history.
         self.save_training_history(save_path / 'training_history.json')
         self.plot_training_curves(save_path / 'training_curves.png')
+
+    def save_checkpoint(self, filepath: Path):
+        '''
+        Save the model checkpoint to the specified filepath.
+
+        Args:
+            filepath (Path): Path to save the checkpoint.
+        '''
+        checkpoint = {
+            'model_state_dict': self.model.state_dict(),
+            'optimizer_state_dict': self.optimizer.state_dict(),
+            'scheduler_state_dict': self.scheduler.state_dict() if self.scheduler else None,
+            'epoch': self.current_epoch,
+            'global_step': self.global_step,
+            'best_val_loss': self.best_val_loss,
+            'train_losses': self.train_losses,
+            'val_losses': self.val_losses
+        }
+
+        torch.save(checkpoint, filepath)
+        print(f"Checkpoint saved to: {filepath}")
+
+    def load_checkpoint(self, filepath: Path):
+        '''
+        Load the model checkpoint from the specified filepath.
+
+        Args:
+            filepath (Path): Path to load the checkpoint from.
+        '''
+        checkpoint = torch.load(filepath, map_location=self.device)
+
+        self.model.load_state_dict(checkpoint['model_state_dict'])
+        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+
+        # Load scheduler state if applicable.
+        if self.scheduler and checkpoint['scheduler_state_dict']:
+            self.scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+
+        self.current_epoch = checkpoint['epoch']
+        self.global_step = checkpoint['global_step']
+        self.best_val_loss = checkpoint['best_val_loss']
+        self.train_losses = checkpoint['train_losses']
+        self.val_losses = checkpoint['val_losses']
+
+        print(f"Checkpoint loaded from: {filepath}")
