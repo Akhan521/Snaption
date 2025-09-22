@@ -328,3 +328,62 @@ class SnaptionTrainer:
         self.val_losses = checkpoint['val_losses']
 
         print(f"Checkpoint loaded from: {filepath}")
+
+    def save_training_history(self, filepath: Path):
+        '''
+        Save the training history as a JSON file.
+        
+        Args:
+            filepath (Path): Path to save the training history.
+        '''
+        history = {
+            'train_losses': self.train_losses,
+            'val_losses': self.val_losses,
+            'learning_rates': self.learning_rates,
+            'epochs': self.current_epoch,
+            'global_steps': self.global_step
+        }
+
+        with open(filepath, 'w') as f:
+            json.dump(history, f, indent = 2)
+
+        print(f"Training history saved to: {filepath}")
+
+    def plot_training_curves(self, filepath: Path):
+        '''
+        Plot and save the training and validation loss curves.
+        
+        Args:
+            filepath (Path): Path to save the plot.
+        '''
+        fig, axes = plt.subplots(2, 1, figsize=(10, 8)) # 2 rows, 1 column
+
+        # Plot training and validation loss curves.
+        epochs = range(1, len(self.train_losses) + 1)
+        axes[0].plot(epochs, self.train_losses, label='Train Loss', alpha = 0.7)
+        if self.val_losses:
+            val_epochs = range(1, len(self.val_losses) + 1)
+            axes[0].plot(val_epochs, self.val_losses, label='Val Loss', alpha = 0.7)
+        axes[0].set_title('Training and Validation Loss')
+        axes[0].set_xlabel('Epochs')
+        axes[0].set_ylabel('Loss')
+        axes[0].legend()
+        axes[0].grid(True, alpha = 0.3)
+
+        # Plot learning rate curve if scheduler is used.
+        if self.learning_rates:
+            steps = range(1, len(self.learning_rates) + 1)
+            axes[1].plot(steps, self.learning_rates, label='Learning Rate', color='orange', alpha = 0.7)
+            axes[1].set_title('Learning Rate Schedule')
+            axes[1].set_xlabel('Steps')
+            axes[1].set_ylabel('Learning Rate')
+            axes[1].set_yscale('log') # Log scale for better visibility
+            axes[1].grid(True, alpha = 0.3)
+
+        plt.tight_layout()
+        # Here, dpi (dots per inch) controls the resolution of the saved figure.
+        # bbox_inches='tight' ensures that the bounding box of the saved figure tightly fits the content. 
+        plt.savefig(filepath, dpi = 150, bbox_inches = 'tight') 
+        plt.close()
+
+        print(f"Training curves saved to: {filepath}")
