@@ -73,4 +73,51 @@ def main():
     print(f"Vocab mapper saved to: {vocab_path}")
     print(f"Tokenizer saved to: {tokenizer_path}")
 
-    
+    # Create train/validation split:
+    print("\nCreating train/validation split...")
+    val_split = 0.0 # We'll use the entire dataset for training.
+    if val_split > 0:
+        train_df, val_df = create_train_val_split(df, val_split = val_split)
+        print(f"Training samples: {len(train_df)}, Validation samples: {len(val_df)}")
+    else:
+        train_df, val_df = df, None
+        print(f"Training samples: {len(train_df)}, No validation set provided.")
+
+    # Create datasets:
+    print("\nCreating datasets...")
+    train_dataset = ImageCaptioningDataset(
+        train_df, images_dir, split = 'train',
+        tokenizer = tokenizer, vocab_mapper = vocab_mapper
+    )
+
+    if val_df is not None:
+        val_dataset = ImageCaptioningDataset(
+            val_df, images_dir, split = 'val',
+            tokenizer = tokenizer, vocab_mapper = vocab_mapper
+        )
+    else:
+        val_dataset = None
+
+    # Create data loaders:
+    print("\nCreating data loaders...")
+    batch_size = 32
+    train_dataloader = DataLoader(
+        train_dataset,
+        batch_size = batch_size,
+        shuffle = True,
+    )
+
+    if val_dataset is not None:
+        val_dataloader = DataLoader(
+            val_dataset,
+            batch_size = batch_size,
+            shuffle = False,
+        )
+    else:
+        val_dataloader = None
+
+    print(f"Train batches: {len(train_dataloader)}")
+    if val_dataloader is not None:
+        print(f"Validation batches: {len(val_dataloader)}")
+    else:
+        print("No validation dataloader available.")
