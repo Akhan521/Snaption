@@ -121,3 +121,53 @@ def main():
         print(f"Validation batches: {len(val_dataloader)}")
     else:
         print("No validation dataloader available.")
+
+    # Our model configuration:
+    context_length = 20 # Max caption length (including special tokens).
+    num_blocks = 6      # Number of transformer blocks.
+    model_dim = 512     # Model dimensionality.
+    num_heads = 16      # Number of attention heads.
+    dropout_prob = 0.5  # Dropout probability.
+    encoder_model = 'efficientnet_b0' # Timm model name for encoder.
+
+    # Create model:
+    print("\nCreating model...")
+    model = snaption.ImageCaptioner(
+        context_length = context_length,
+        vocab_size = len(vocab_mapper),
+        num_blocks = num_blocks,
+        model_dim = model_dim,
+        num_heads = num_heads,
+        dropout_prob = dropout_prob,
+        encoder_model = encoder_model # You can change the encoder model here.
+    )
+
+    print(f"Model parameters: {sum(p.numel() for p in model.parameters())}")
+
+    # Create trainer:
+    print("\nCreating and setting up trainer...")
+    trainer = SnaptionTrainer(
+        model = model,
+        train_loader = train_dataloader,
+        val_loader = val_dataloader,
+        vocab_mapper = vocab_mapper,
+        device = device,
+    )
+
+    # Our training configuration:
+    learning_rate = 2e-4
+    weight_decay = 1e-4
+    label_smoothing = 0.1 # This helps regularize the model.
+    max_epochs = 10       # Set to a small number for testing; increase as needed.
+    freeze_encoder = True # Whether to freeze the CNN encoder during training.
+    use_scheduler = True  # Whether to use a learning rate scheduler.
+
+    # Set up trainer:
+    trainer.setup_training(
+        learning_rate = learning_rate,
+        weight_decay = weight_decay,
+        label_smoothing = label_smoothing,
+        max_epochs = max_epochs, 
+        freeze_encoder = freeze_encoder,
+        use_scheduler = use_scheduler,
+    )
