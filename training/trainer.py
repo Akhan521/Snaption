@@ -226,7 +226,7 @@ class SnaptionTrainer:
     def train(
         self, 
         epochs: int | None = None,
-        save_dir: str = './checkpoints',
+        save_dir: Path | str = './checkpoints',
         save_every: int = 50,
         validate_every: int = 1,
     ):

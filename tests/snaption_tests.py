@@ -170,7 +170,7 @@ def test_weight_loading():
     print("\nTesting model weight loading...")
 
     path = 'path/to/weights.pt' # Update w/ actual path to weights file.
-    
+
     from snaption.utils import VocabMapper
     import pickle
     # Load the vocab mapper.
@@ -206,7 +206,7 @@ def run_all_tests():
         ("Image Preprocessing", test_image_preprocessing),
         ("Model Forward Pass", test_model_forward_pass),
         ("Caption Generation", test_generation),
-        # ("Model Weight Loading", test_weight_loading)
+        ("Model Weight Loading", test_weight_loading)
     ]
 
     results = []
