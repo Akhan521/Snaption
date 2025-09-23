@@ -171,3 +171,65 @@ def main():
         freeze_encoder = freeze_encoder,
         use_scheduler = use_scheduler,
     )
+
+    # Resume from checkpoint if available:
+    checkpoint_path = None 
+    if checkpoint_path and checkpoint_path.endswith('.pt'):
+        print(f"\nResuming from checkpoint: {checkpoint_path}")
+        trainer.load_checkpoint(checkpoint_path)
+
+    # Save training config:
+    config = {
+        'model_config': {
+            'context_length': context_length,
+            'vocab_size': len(vocab_mapper),
+            'num_blocks': num_blocks,
+            'model_dim': model_dim,
+            'num_heads': num_heads,
+            'dropout_prob': dropout_prob,
+            'encoder_model': encoder_model
+        },
+        'training_config': {
+            'learning_rate': learning_rate,
+            'weight_decay': weight_decay,
+            'label_smoothing': label_smoothing,
+            'max_epochs': max_epochs,
+            'batch_size': batch_size,
+            'freeze_encoder': freeze_encoder,
+            'use_scheduler': use_scheduler
+        }
+    }
+
+    config_path = save_dir / 'config.json'
+    with open(config_path, 'w') as f:
+        json.dump(config, f, indent = 2)
+
+    print(f"\nTraining configuration saved to: {config_path}")
+
+    # Start training:
+    print("\nStarting training...")
+    print("=" * 50)
+
+    try:
+        save_every = 10 # Save checkpoint every N epochs.
+        trainer.train(
+            epochs = max_epochs,
+            save_dir = save_dir,
+            save_every = save_every,
+        )
+    except KeyboardInterrupt:
+        print("\nTraining interrupted by user. Saving checkpoint...")
+        trainer.save_checkpoint(save_dir / 'checkpoint_interrupt.pt')
+        print("Checkpoint saved before exiting.")
+    except Exception as e:
+        print(f"\nAn error occurred during training: {e}")
+        print("Saving checkpoint before exiting...")
+        trainer.save_checkpoint(save_dir / 'checkpoint_error.pt')
+        print("Checkpoint saved before exiting.")
+        raise e
+    
+    print("\nTraining completed successfully!")
+    print(f"Final model checkpoint saved to: {save_dir}")
+
+if __name__ == '__main__':
+    main()
