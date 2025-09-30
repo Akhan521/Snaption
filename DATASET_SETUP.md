@@ -6,8 +6,6 @@ Quick guide to download and set up the Flickr8k dataset for custom training with
 
 ## Quick Setup (5 minutes)
 
-### Kaggle 
-
 1. **Get Kaggle Account**: Sign up at [kaggle.com](https://www.kaggle.com) (free)
 
 2. **Download Dataset**: Go to [Flickr8k on Kaggle](https://www.kaggle.com/datasets/adityajn105/flickr8k)
@@ -25,6 +23,12 @@ Quick guide to download and set up the Flickr8k dataset for custom training with
          ├── image1.jpg
          └── ... (8,090 more images)
      ```
+
+4. **Verify**:
+   Ensure `captions.txt` and the `Images/` folder with `.jpg` files are present in `training/data/Flickr8k/`.
+
+5. **Note**: 
+    Please delete the first line of `captions.txt` if it contains any header information.
 
 ## What's Next?
 
