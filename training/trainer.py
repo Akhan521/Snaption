@@ -86,6 +86,9 @@ class SnaptionTrainer:
             scheduler_epochs (int): Total number of epochs for the scheduler. Defaults to 200.
             scheduler_pct_start (float): The percentage of the scheduler_epochs spent increasing the learning rate. Defaults to 0.1.
         '''
+        if not self.vocab_mapper:
+            raise ValueError("vocab_mapper must be provided to setup training.")
+
         if freeze_encoder:
             self.model.freeze_encoder()
             print("Image encoder frozen for training.")
@@ -169,6 +172,8 @@ class SnaptionTrainer:
                 self.scheduler.step()
                 current_lr = self.scheduler.get_last_lr()[0]
                 self.learning_rates.append(current_lr)
+            else:
+                current_lr = self.optimizer.param_groups[0]['lr']
 
             # Update metrics.
             total_loss += loss.item()
@@ -180,7 +185,7 @@ class SnaptionTrainer:
                 progress_bar.set_postfix({
                     'loss': f'{loss.item():.4f}',
                     'avg_loss': f'{avg_loss:.4f}',
-                    'lr': f'{current_lr:.6f}' if self.scheduler else f'{self.optimizer.param_groups[0]["lr"]:.6f}'
+                    'lr': f'{current_lr:.6f}'
                 })
 
         avg_epoch_loss = total_loss / num_batches

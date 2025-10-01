@@ -87,7 +87,7 @@ class SnaptionModel:
         self.model.to(self.device)
         self.model.eval()
 
-        print(f'Model loaded successfully from {model_path} on {self.device}.')
+        print(f'\nModel loaded successfully from {model_path} on {self.device}.')
 
     def _preprocess_image(self, image_input: str | np.ndarray | Image.Image | Path) -> torch.Tensor:
         '''
@@ -141,6 +141,9 @@ class SnaptionModel:
         '''
         if not self.model:
             raise RuntimeError("Model not loaded. Call load_model() first.")
+        
+        if not self.vocab_mapper:
+            raise RuntimeError("vocab_mapper not set. Provide a vocab_mapper during initialization or via load_model().")
 
         # Preprocess the image.
         image_tensor = self._preprocess_image(image_input).to(self.device)
@@ -184,6 +187,9 @@ class SnaptionModel:
         '''
         if not self.model:
             raise RuntimeError("Model not loaded. Call load_model() first.")
+        
+        if not self.vocab_mapper:
+            raise RuntimeError("vocab_mapper not set. Provide a vocab_mapper during initialization or via load_model().")
         
         # Process images in batches:
         batch_size = 4

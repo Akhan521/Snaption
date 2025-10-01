@@ -21,8 +21,8 @@ import json
 import pickle
 
 import snaption
-from dataset import load_flickr8k_dataset, create_train_val_split, ImageCaptioningDataset
-from trainer import SnaptionTrainer
+from training.dataset import load_flickr8k_dataset, create_train_val_split, ImageCaptioningDataset
+from training.trainer import SnaptionTrainer
 
 def setup_device(device: str = 'auto') -> str:
     '''Set up the device for training.'''
@@ -43,7 +43,7 @@ def main():
     device = setup_device('auto')
 
     # Set up paths (ensure these paths are correct):
-    data_dir = Path('data/Flickr8k')
+    data_dir = Path('training/data/Flickr8k')
     captions_file = data_dir / 'captions.txt'
     images_dir = data_dir / 'images'
     save_dir = Path('./checkpoints')
@@ -59,7 +59,7 @@ def main():
 
     # Build vocabulary:
     print("\nBuilding vocabulary...")
-    tokenizer, vocab_mapper = snaption.utils.build_vocab(all_captions, min_freq = 2)
+    tokenizer, vocab_mapper = snaption.utils.build_vocab(all_captions, min_freq = 1)
     print(f"Vocabulary size: {len(vocab_mapper)}")
 
     # Save tokenizer and vocab mapper for future use:
@@ -158,7 +158,7 @@ def main():
     learning_rate = 2e-4
     weight_decay = 1e-4
     label_smoothing = 0.1 # This helps regularize the model.
-    max_epochs = 10       # Set to a small number for testing; increase as needed.
+    max_epochs = 1       # Set to a small number for testing; increase as needed.
     freeze_encoder = True # Whether to freeze the CNN encoder during training.
     use_scheduler = True  # Whether to use a learning rate scheduler.
 

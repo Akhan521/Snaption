@@ -45,9 +45,11 @@ class VocabMapper:
         }
 
         # For tokens that meet the min_freq threshold, add them to the mapping.
-        for i, (token, freq) in enumerate(vocab_freqs.items(), start=4):
+        idx = 4
+        for token, freq in vocab_freqs.items():
             if freq >= min_freq:
-                self.token_to_idx[token] = i
+                self.token_to_idx[token] = idx
+                idx += 1
 
         # Create reverse mapping.
         self.idx_to_token = {idx: token for token, idx in self.token_to_idx.items()}
