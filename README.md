@@ -6,7 +6,7 @@
 **Transform your images into natural language descriptions using deep learning!**
 
 [![Quick Start](https://img.shields.io/badge/🚀_Quick_Start-4facfe?style=for-the-badge)](#-quick-start)
-[![Models](https://img.shields.io/badge/📦_Models-blue?style=for-the-badge)](releases)
+[![Models](https://img.shields.io/badge/📦_Models-blue?style=for-the-badge)](https://github.com/Akhan521/Snaption/releases/tag/v0.1.0)
 [![Demo](https://img.shields.io/badge/🎯_Demo-667eea?style=for-the-badge)](#-demo)
 [![Docs](https://img.shields.io/badge/📖_Docs-9B59B6?style=for-the-badge)](#-documentation)
 
