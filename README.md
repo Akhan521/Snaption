@@ -479,17 +479,20 @@ Just include the original license and copyright notice!
 
 ## 📬 Contact & Connect
 
-- **GitHub**: [Akhan521](https://github.com/Akhan521)
-- **LinkedIn**: [Aamir Khan](https://www.linkedin.com/in/aamir-khan-aak521/)
-- **Email**: aamirksfg@gmail.com
-- **Portfolio**: [aamir-khans-portfolio.vercel.app/](https://aamir-khans-portfolio.vercel.app/)
+<div align="center">
+
+[![GitHub](https://img.shields.io/badge/GitHub-Akhan521-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Akhan521)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Aamir_Khan-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/aamir-khan-aak521/)
+[![Email](https://img.shields.io/badge/Email-aamirksfg@gmail.com-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:aamirksfg@gmail.com)
+[![Portfolio](https://img.shields.io/badge/Portfolio-Visit_Site-4285F4?style=for-the-badge&logo=vercel&logoColor=white)](https://aamir-khans-portfolio.vercel.app/)
+
+</div>
 
 <br>
 <div align="center">
 
 **If you found this project helpful, please consider starring my repository!**
 
-
-[🔝 Back to Top](#snaption--ai-powered-image-captioning)
+[![Back to Top](https://img.shields.io/badge/⬆_Back_to_Top-667eea?style=for-the-badge)](#snaption--ai-powered-image-captioning)
 
 </div>
