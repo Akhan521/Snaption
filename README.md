@@ -165,7 +165,7 @@ Generated Caption: "a dog is running through the grass"
 **Key Hyperparameters:**
 - Model dimension: 512 (split across 16 attention heads)
 - Context length: 20 tokens (max caption length)
-- Vocabulary size: ~8,000 tokens
+- Vocabulary size: ~8,500 tokens
 - Dropout: 0.3 (for regularization)
 
 ---
