@@ -186,7 +186,7 @@ The model was trained on **Flickr8k** (8,091 images, 40,455 captions):
 |--------|-------|-------|
 | **Model Size** | 87 MB | Compressed state dict |
 | **Inference Speed** | ~1s/image | On CPU (Intel i7-1365U) |
-| **Vocabulary** | ~8,000 tokens | Covers 99% of the dataset |
+| **Vocabulary** | ~8,500 tokens | Covers a vast number of words  |
 
 ### Sample Outputs:
 
