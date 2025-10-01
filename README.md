@@ -13,8 +13,10 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.8+-ee4c2c.svg)](https://pytorch.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Install](https://img.shields.io/badge/Install-Source_Only-orange.svg)](https://github.com/Akhan521/Snaption#-quick-start)
 
 </div>
+
 
 ---
 
@@ -28,6 +30,7 @@ Snaption is an end-to-end **image captioning system** that automatically generat
 - **Pre-trained models** available for immediate use
 - **Extensible training pipeline** with advanced data augmentation
 - **Professional MLOps practices** including checkpointing, monitoring, and reproducibility
+> **📦 Installation Note**: Snaption is intentionally distributed as a source installation project rather than a PyPI package. This design choice prioritizes code transparency, easy modification, and focuses on demonstrating ML engineering skills over package distribution. My project structure follows production-ready packaging standards and could be published to PyPI, if extended for broader use.
 
 **Potential Real-World Applications:**
 - Accessibility tools for visually impaired users
@@ -65,7 +68,7 @@ https://github.com/user-attachments/assets/19dad98f-fbfb-474b-b75a-38446732a9ae
 **Get up and running in 5 minutes:**
 
 ```bash
-# 1. Clone and install:
+# 1. Clone and install (source installation):
 git clone https://github.com/Akhan521/Snaption.git
 cd snaption
 pip install -e .
@@ -98,14 +101,18 @@ print(f"Caption: {caption}")
 ### Option B: Train Your Own Model
 
 ```bash
-# 1. Setup dataset (see DATASET_SETUP.md)
+# 1. Clone and install (source installation):
+git clone https://github.com/Akhan521/Snaption.git
+cd snaption
+pip install -e .
 
-# 2. Start training:
-# Feel free to adjust hyperparameters in train.py if desired or use defaults.
+# 2. Set up dataset: (see DATASET_SETUP.md)
+
+# 3. Start training: Feel free to adjust hyperparameters in train.py if desired or use defaults.
 python -m training.train
 ```
 
-**📖 Detailed guides**: [Installation](#installation) • [Training Guide](training/README.md) • [Dataset Setup](DATASET_SETUP.md)
+**📖 Detailed guides**: [Training Guide](training/README.md) || [Dataset Setup](DATASET_SETUP.md)
 
 ---
 
@@ -372,6 +379,27 @@ Clean package structure with:
 - **[Quick Start Guide](#-quick-start)** - Get running in 5 minutes
 - **[Dataset Setup](DATASET_SETUP.md)** - Download Flickr8k dataset
 - **[Training Guide](training/README.md)** - Train your own models
+
+---
+## 💭 Installation & Distribution Philosophy
+
+### Not on PyPI?
+
+Snaption is structured as a **production-ready Python package** but intentionally maintained as a source installation project. This design choice reflects:
+
+**Strategic Benefits:**
+- **Code Transparency**: Users can easily explore and understand my full implementation
+- **Modification Freedom**: Researchers and learners can adapt my code for their needs
+- **Focus on Learning**: Emphasizes code quality and architecture over distribution metrics
+- **No Maintenance Burden**: Allows me to focus on new projects without ongoing package support obligations
+
+**Package Maturity:**
+- Proper `setup.py` configuration following Python packaging standards
+- Clean modular structure separating core package from training utilities
+- Comprehensive documentation and type hints
+- Ready for PyPI publication if extended for production use
+
+**Installation remains simple** - it takes just 3 commands to get started. This demonstrates my packaging skills while keeping my project scope appropriate for a portfolio piece.
 
 ---
 
