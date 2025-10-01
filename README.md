@@ -201,7 +201,7 @@ The model was trained on **Flickr8k** (8,091 images, 40,455 captions):
 - Sometimes generic descriptions (e.g., "a dog is on the grass")
 - Trained only on Flickr8k → may be biased towards common scenes
 
-**Potential future improvements**: Fine-tune on larger datasets (MS COCO), implement beam search, add attention visualization
+**Potential improvements**: Fine-tune on larger datasets (MS COCO), add attention visualization, etc.
 
 ---
 
