@@ -101,9 +101,8 @@ print(f"Caption: {caption}")
 # 1. Setup dataset (see DATASET_SETUP.md)
 
 # 2. Start training:
-cd training/
 # Feel free to adjust hyperparameters in train.py if desired or use defaults.
-python train.py 
+python -m training.train
 ```
 
 **📖 Detailed guides**: [Installation](#installation) • [Training Guide](training/README.md) • [Dataset Setup](DATASET_SETUP.md)
