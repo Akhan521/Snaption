@@ -1,14 +1,20 @@
 # Snaption 📸: AI-Powered Image Captioning 
 
+<div align="center">
+
+### AI-Powered Image Captioning with PyTorch, Deep Learning, & Multi-Modal ML
+**Transform your images into natural language descriptions using deep learning!**
+
+[![Quick Start](https://img.shields.io/badge/🚀_Quick_Start-4facfe?style=for-the-badge)](#-quick-start)
+[![Models](https://img.shields.io/badge/📦_Models-blue?style=for-the-badge)](releases)
+[![Demo](https://img.shields.io/badge/🎯_Demo-667eea?style=for-the-badge)](#-demo)
+[![Docs](https://img.shields.io/badge/📖_Docs-9B59B6?style=for-the-badge)](#-documentation)
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.8+-ee4c2c.svg)](https://pytorch.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-### AI-Powered Image Captioning with PyTorch, Transformers, and Multi-Modal Learning
-**Transform your images into natural language descriptions using deep learning!**
-
-[🚀 Quick Start](#-quick-start) • [📦 Releases](https://github.com/Akhan521/Snaption/releases/tag/v0.1.0) • [📖 Docs](#-documentation) • [🎯 Demo](#-demo)
+</div>
 
 ---
 
@@ -459,11 +465,11 @@ Just include the original license and copyright notice!
 - **Email**: aamirksfg@gmail.com
 - **Portfolio**: [aamir-khans-portfolio.vercel.app/](https://aamir-khans-portfolio.vercel.app/)
 
----
-
+<br>
 <div align="center">
 
 **If you found this project helpful, please consider starring my repository!**
+
 
 [🔝 Back to Top](#snaption--ai-powered-image-captioning)
 
