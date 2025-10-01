@@ -1,11 +1,12 @@
-# Snaption 📸
-### AI-Powered Image Captioning with PyTorch, Transformers, and Multi-Modal Learning
+# Snaption 📸: AI-Powered Image Captioning 
+
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.8+-ee4c2c.svg)](https://pytorch.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **Transform your images into natural language descriptions using deep learning**
+### AI-Powered Image Captioning with PyTorch, Transformers, and Multi-Modal Learning
+**Transform your images into natural language descriptions using deep learning!**
 
 [🚀 Quick Start](#-quick-start) • [📦 Releases](https://github.com/Akhan521/Snaption/releases/tag/v0.1.0) • [📖 Docs](#-documentation) • [🎯 Demo](#-demo)
 
@@ -46,9 +47,8 @@ model = snaption.SnaptionModel('path/to/pretrained_weights.pt', vocab_mapper)
 
 # Caption any image:
 caption = model.caption('path/to/your/image.jpg')
-
-# Example outputs from the model:
 ```
+### Example outputs from the model:
 
 | Image | Generated Caption |
 |-------|-------------------|
@@ -56,11 +56,11 @@ caption = model.caption('path/to/your/image.jpg')
 | 🏖️ Beach scene | "a man is standing on the beach near the ocean" |
 | 👶 Child playing | "a young child is playing with a toy" |
 
-> **Note**: Captions are generated in real-time from the model's learned understanding of images and language!
+**Note**: Captions are generated in real-time from the model's learned understanding of images and language!
 
 ---
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Option A: Use Pre-Trained Models (Recommended)
 
@@ -144,7 +144,7 @@ Image (224×224×3)
 Generated Caption: "a dog is running through the grass"
 ```
 
-### Design Decisions
+### Design Decisions:
 
 **Why EfficientNet-B0?**
 - Best accuracy/efficiency trade-off for edge deployment
@@ -162,13 +162,13 @@ Generated Caption: "a dog is running through the grass"
 - Model dimension: 512 (split across 16 attention heads)
 - Context length: 20 tokens (max caption length)
 - Vocabulary size: ~8,000 tokens
-- Dropout: 0.5 (for regularization)
+- Dropout: 0.3 (for regularization)
 
 ---
 
 ## 📊 Results & Performance
 
-### Training Progress
+### Training Progress:
 
 The model was trained on **Flickr8k** (8,091 images, 40,455 captions):
 
@@ -176,7 +176,7 @@ The model was trained on **Flickr8k** (8,091 images, 40,455 captions):
 - **Final training loss**: ~2.15
 - **Training time**: ~6-8 hours on a high-ram T4 GPU
 
-### Model Performance
+### Model Performance:
 
 | Metric | Value | Notes |
 |--------|-------|-------|
@@ -184,7 +184,7 @@ The model was trained on **Flickr8k** (8,091 images, 40,455 captions):
 | **Inference Speed** | ~1s/image | On CPU (Intel i7-1365U) |
 | **Vocabulary** | ~8,000 tokens | Covers 99% of the dataset |
 
-### Sample Outputs
+### Sample Outputs:
 
 **Strong Examples:**
 - Input: Beach scene → Output: "a man is standing on the beach"
@@ -203,11 +203,11 @@ The model was trained on **Flickr8k** (8,091 images, 40,455 captions):
 
 ## 💡 My Learning Journey
 
-### Motivation
+### Motivation:
 
 I wanted to explore multi-modal ML for the first time, and I decided that diving into the intersection of computer vision and natural language processing would be the perfect challenge, as these are both fields I’m passionate about. This led me to image captioning. Image captioning is technically complex, has real-world applications, and forces you to understand both modalities deeply.
 
-### What I Learned
+### What I Learned:
 
 **Before this project:**
 - Basic multi-modal ML knowledge from personal study
@@ -222,7 +222,7 @@ I wanted to explore multi-modal ML for the first time, and I decided that diving
 - **Software Engineering**: Building installable packages, API design, documentation, version control
 - **Debugging**: Identifying overfitting, diagnosing training instabilities, validating data pipelines
 
-### Key "Aha!" Moments
+### Key "Aha!" Moments:
 
 **1. Understanding Cross-Attention**
 > Initially, I struggled to understand how the model "sees" the image while generating text. The breakthrough came when I realized cross-attention creates a bridge: the decoder's query vectors ask "what visual features are relevant for generating this word?", and the image features respond. It's like the model is looking back at the image for each word it writes.
@@ -233,7 +233,7 @@ I wanted to explore multi-modal ML for the first time, and I decided that diving
 **3. The Power of Data Augmentation**
 > Adding aggressive augmentations (random crops, color jitter, rotations) improved feature generalization. The model was no longer seeing the exact same image twice; it learned to focus on semantic content rather than pixel-level details. This was my first real experience with regularization that actually works in practice.
 
-### Resources That Helped
+### Resources That Helped:
 
 - **"Attention is All You Need"** paper for Transformer fundamentals
 - **PyTorch tutorials** for encoder-decoder implementations
@@ -256,7 +256,7 @@ My initial training runs showed unstable loss curves, sometimes diverging, other
 **The Solution:**  
 My OneCycleLR scheduler setup with warm-up was the game-changer. Starting with a small LR, warming up to 2e-4 over 10% of training, then cosine annealing to near-zero. This gave my model time to stabilize early on, then converge smoothly. Gradient clipping (max norm 2.0) prevented occasional spikes.
 
-**Result**: Stable training with steady loss decrease from +10 → 2.15 over 500 epochs.
+**Result**: Stable training with steady loss decrease from +10 → ~2.15 over 500 epochs.
 
 **Key Learning**: Hyperparameter tuning isn't random guessing, it's a systematic debugging process. Start simple, isolate variables, and use diagnostic tools.
 
@@ -382,14 +382,14 @@ Clean package structure with:
 
 I welcome contributions! From fixing bugs, adding features, or improving documentation, here's how you can help:
 
-### Ways to Contribute
+### Ways to Contribute:
 
 1. **Report bugs**: [Open an issue](https://github.com/Akhan521/Snaption/issues) with reproducible steps
 2. **Suggest features**: Share ideas for improvements
 3. **Improve docs**: Fix typos, add examples, clarify explanations
 4. **Submit PRs**: Fork, create a branch, and submit a pull request
 
-### Development Setup
+### Development Setup:
 
 ```bash
 # Clone and install in development mode:
@@ -402,7 +402,7 @@ python -m tests/snaption_tests.py
 # (Add more tests as needed...)
 ```
 
-### Contribution Guidelines
+### Contribution Guidelines:
 
 - Follow PEP 8 style guidelines
 - Add docstrings to new functions
@@ -414,24 +414,24 @@ python -m tests/snaption_tests.py
 
 ## 📚 References & Acknowledgments
 
-### Papers & Research
+### Papers & Research:
 
 - **Vaswani et al. (2017)**: ["Attention is All You Need"](https://arxiv.org/abs/1706.03762) - Transformer architecture
 - **Xu et al. (2015)**: ["Show, Attend and Tell"](https://arxiv.org/abs/1502.03044) - Attention for image captioning
 - **Tan & Le (2019)**: ["EfficientNet"](https://arxiv.org/abs/1905.11946) - Efficient CNN architecture
 
-### Datasets
+### Datasets:
 
 - **Flickr8k**: Hodosh et al. (2013) - ["Framing Image Description as a Ranking Task"](https://doi.org/10.1613/jair.3994)
 
-### Tools & Libraries
+### Tools & Libraries:
 
 - **PyTorch Team** - For the excellent deep learning framework
 - **Ross Wightman** - For the timm library (pre-trained vision models)
 - **Albumentations Team** - For a fast and flexible augmentation library
 - **Hugging Face** - For inspiration on package structure and documentation
 
-### Special Thanks
+### Special Thanks:
 
 - **Flickr8k dataset creators** - For making image-caption data publicly available
 - **Open source community** - For countless tutorials, blog posts, and helpful visualizations
@@ -452,21 +452,6 @@ Just include the original license and copyright notice!
 
 ---
 
-## 🌟 Citation
-
-If you use Snaption in your research or project, I'd appreciate a citation:
-
-```bibtex
-@software{snaption2024,
-  title={Snaption: AI-Powered Image Captioning with PyTorch},
-  author={Your Name},
-  year={2024},
-  url={https://github.com/YOURUSERNAME/snaption}
-}
-```
-
----
-
 ## 📬 Contact & Connect
 
 - **GitHub**: [Akhan521](https://github.com/Akhan521)
@@ -478,10 +463,8 @@ If you use Snaption in your research or project, I'd appreciate a citation:
 
 <div align="center">
 
-**If you found this project helpful, please consider starring my repository.**
+**If you found this project helpful, please consider starring my repository!**
 
-Made with curiosity and excitement by [Aamir Khan](https://www.linkedin.com/in/aamir-khan-aak521/)
-
-[🔝 Back to Top](#snaption-)
+[🔝 Back to Top](#snaption--ai-powered-image-captioning)
 
 </div>
