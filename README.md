@@ -38,22 +38,14 @@ Snaption is an end-to-end **image captioning system** that automatically generat
 
 ## ✨ Demo
 
-**Input Images → Generated Captions**
+<div align="center">
 
-```python
-import snaption
-import pickle
 
-# Load vocabulary:
-with open('vocab_mapper.pkl', 'rb') as f:
-    vocab_mapper = pickle.load(f)
+https://github.com/user-attachments/assets/19dad98f-fbfb-474b-b75a-38446732a9ae
 
-# Create model instance with pre-trained weights:
-model = snaption.SnaptionModel('path/to/pretrained_weights.pt', vocab_mapper)
 
-# Caption any image:
-caption = model.caption('path/to/your/image.jpg')
-```
+</div>
+
 ### Example outputs from the model:
 
 | Image | Generated Caption |
